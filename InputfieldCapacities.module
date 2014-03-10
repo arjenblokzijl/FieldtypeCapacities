@@ -1,0 +1,138 @@
+<?php
+
+class InputfieldCapacities extends Inputfield {
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'Capacities',
+			'version' => 3,
+			'summary' => 'Input field for capacities.',
+			'requires' => 'FieldtypeCapacities',
+			);
+	}
+
+	protected $page;
+	protected $field;
+
+	public function setPage(Page $page) {
+		$this->page = $page;
+	}
+
+	public function setField(Field $field) {
+		$this->field = $field;
+	}
+
+	/**
+	 * Render a table row for an individual Capacity input
+	 *
+	 */
+	protected function renderRow(Capacity $capacity, $cnt, $class = 'Capacity') {
+
+		$name = $this->attr('name');
+		$amount = $this->sanitizer->entities($capacity->amount);
+		$yearStart = $this->sanitizer->entities($capacity->capacity_year_start);
+		$yearEnd = $this->sanitizer->entities($capacity->capacity_year_end);
+
+		$out = "
+			<tr class='Capacity$cnt $class'>
+				<td><a href='#' class='CapacityClone'><span class='ui-icon ui-icon-copy'></span></a></td>
+				<td><input type='text' name='{$name}_amount[]' value='$amount' /></td>
+				<td><input type='text' name='{$name}_capacity_year_start[]' value='$yearStart' /></td>
+				<td><input type='text' name='{$name}_capacity_year_end[]' value='$yearEnd' /></td>
+				<td>
+					<a href='#' class='CapacityDel ui-helper-clearfix'><span class='ui-icon ui-icon-trash'></span></a>
+					<input type='hidden' name='{$name}_del[]' value='0' />
+				</td>
+			</tr>
+			";
+
+		return $out;
+	}
+
+	/**
+	 * Render the entire input area for Capacities
+	 *
+	 */
+	public function ___render() {
+
+		// get Capacity template for creating new capacities
+		$tbody = $this->renderRow(new Capacity(), 0, 'Capacity CapacityTemplate');
+
+		// render rows for existing Capacities
+		foreach($this->attr('value') as $cnt => $capacity) {
+			$tbody .= $this->renderRow($capacity, $cnt);
+		}
+
+		$out = 	"
+		<table class='InputfieldCapacities'>
+			<thead>
+			<tr class=''>
+				<th class='CapacityClone'>&nbsp;</th>
+				<th class='CapacityAmount'>Amount</th>
+				<th class='CapacityYearStart'>Year start</th>
+				<th class='CapacityYearEnd'>Year End</th>
+				<th class='CapacityDel'>
+					<a title='Delete All' href='#' class='CapacityDel'><span class='ui-icon ui-icon-trash'></span></a>
+				</th>
+			</tr>
+			</thead>
+			<tbody>
+			$tbody
+			</tbody>
+		</table>
+		";
+
+		// add a button that triggers adding a new capacity
+		$btn = $this->modules->get('InputfieldButton');
+		$btn->attr('id', $this->attr('name') . "_new");
+		$btn->class .= " InputfieldCapacitiesAdd";
+		$btn->icon = 'plus-sign';
+		$btn->value = $this->_('Add New Capacity');
+		$out .= $btn->render();
+
+		return $out;
+	}
+
+	/**
+	 * Process input for the Capacities inputs
+	 *
+	 */
+	public function ___processInput(WireInputData $input) {
+
+		if(!$this->page || !$this->field) {
+			throw new WireException("This inputfield requires that you set valid 'page' and 'field' properties to it.");
+		}
+
+		$name = $this->attr('name');
+		$capacities = $this->field->type->getBlankValue($this->page, $this->field);
+		$numDeleted = 0;
+
+		foreach($input->{"{$name}_amount"} as $cnt => $amount) {
+
+			if(!$cnt) continue; // template for 'new' item is the first, so we can ignore it
+
+			// check if the item is being deleted
+			if($input->{"{$name}_del"}[$cnt]) {
+				// if being deleted, then we simply skip over it
+				$numDeleted++;
+				continue;
+			}
+
+			// create the $capacity and add it to our $capacities
+			$capacity = new Capacity();
+			$capacity->amount = $amount;
+			$capacity->capacity_year_start = $input->{"{$name}_capacity_year_start"}[$cnt];
+			$capacity->capacity_year_end = $input->{"{$name}_capacity_year_end"}[$cnt];
+			$capacities->add($capacity);
+		}
+
+		// if the string values of the processed capacities are different from the previous,
+		// or if any capacities have been deleted, then flag this Inputfield as changed
+		// so that it will be automatically saved with the page
+		if("$capacities" != "$this->value" || $numDeleted) {
+			$this->attr('value', $capacities);
+			$this->trackChange('value');
+		}
+	}
+}
+

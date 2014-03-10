@@ -1,0 +1,61 @@
+.InputfieldCapacities table tr {
+	border: none;
+}
+
+.InputfieldCapacities th {
+	padding-bottom: 0;
+	font-weight: bold;
+}
+
+.InputfieldCapacities tr.CapacityTemplate {
+	display: none;
+}
+
+.InputfieldCapacities tr:not(.CapacityTBD):hover td {
+	background: #eee;
+}
+
+.InputfieldCapacities input[type=text],
+.InputfieldCapacities input[type=date],
+.InputfieldCapacities input[type=number] {
+	width: 100%;
+}
+.InputfieldCapacities th,
+.InputfieldCapacities td {
+	padding: 6px 2px;
+	border-bottom: 1px solid #ddd;
+}
+
+.InputfieldCapacities .CapacityClone {
+	width: 3%;
+	padding-left: 1%;
+	text-align: center;
+}
+
+.InputfieldCapacities .CapacityDate {
+	width: 15%;
+}
+
+.InputfieldCapacities .CapacityLocation {
+	width: 30%;
+}
+
+.InputfieldCapacities .CapacityNotes {
+	width: 50%;
+}
+
+.InputfieldCapacities th.CapacityDel {
+	width: 5%;
+	padding-right: 0;
+
+}
+
+.InputfieldCapacities a.CapacityClone,
+.InputfieldCapacities a.CapacityDel {
+	width: 1.5em;
+	display: block;
+}
+
+.InputfieldCapacities .CapacityTBD td input {
+	text-decoration: line-through;
+}
