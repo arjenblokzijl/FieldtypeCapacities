@@ -1,8 +1,10 @@
 <?php
 
-class InputfieldCapacities extends Inputfield {
+class InputfieldCapacities extends Inputfield 
+{
 
-	public static function getModuleInfo() {
+	public static function getModuleInfo() 
+	{
 		return array(
 			'title' => 'Capacities',
 			'version' => 3,
@@ -14,11 +16,13 @@ class InputfieldCapacities extends Inputfield {
 	protected $page;
 	protected $field;
 
-	public function setPage(Page $page) {
+	public function setPage(Page $page) 
+	{
 		$this->page = $page;
 	}
 
-	public function setField(Field $field) {
+	public function setField(Field $field) 
+	{
 		$this->field = $field;
 	}
 
@@ -26,7 +30,8 @@ class InputfieldCapacities extends Inputfield {
 	 * Render a table row for an individual Capacity input
 	 *
 	 */
-	protected function renderRow(Capacity $capacity, $cnt, $class = 'Capacity') {
+	protected function renderRow(Capacity $capacity, $cnt, $class = 'Capacity') 
+	{
 
 		$name = $this->attr('name');
 		$amount = $this->sanitizer->entities($capacity->amount);
@@ -53,7 +58,8 @@ class InputfieldCapacities extends Inputfield {
 	 * Render the entire input area for Capacities
 	 *
 	 */
-	public function ___render() {
+	public function ___render() 
+	{
 
 		// get Capacity template for creating new capacities
 		$tbody = $this->renderRow(new Capacity(), 0, 'Capacity CapacityTemplate');
@@ -97,9 +103,11 @@ class InputfieldCapacities extends Inputfield {
 	 * Process input for the Capacities inputs
 	 *
 	 */
-	public function ___processInput(WireInputData $input) {
+	public function ___processInput(WireInputData $input) 
+	{
 
-		if(!$this->page || !$this->field) {
+		if(!$this->page || !$this->field) 
+		{
 			throw new WireException("This inputfield requires that you set valid 'page' and 'field' properties to it.");
 		}
 
@@ -107,12 +115,14 @@ class InputfieldCapacities extends Inputfield {
 		$capacities = $this->field->type->getBlankValue($this->page, $this->field);
 		$numDeleted = 0;
 
-		foreach($input->{"{$name}_amount"} as $cnt => $amount) {
+		foreach($input->{"{$name}_amount"} as $cnt => $amount) 
+		{
 
 			if(!$cnt) continue; // template for 'new' item is the first, so we can ignore it
 
 			// check if the item is being deleted
-			if($input->{"{$name}_del"}[$cnt]) {
+			if($input->{"{$name}_del"}[$cnt]) 
+			{
 				// if being deleted, then we simply skip over it
 				$numDeleted++;
 				continue;
@@ -129,10 +139,10 @@ class InputfieldCapacities extends Inputfield {
 		// if the string values of the processed capacities are different from the previous,
 		// or if any capacities have been deleted, then flag this Inputfield as changed
 		// so that it will be automatically saved with the page
-		if("$capacities" != "$this->value" || $numDeleted) {
+		if($capacities != $this->value || $numDeleted) 
+		{
 			$this->attr('value', $capacities);
 			$this->trackChange('value');
 		}
 	}
 }
-
